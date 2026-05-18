@@ -1,0 +1,101 @@
+      PROGRAM RAIN77
+C     RAINFALL/RUNOFF DEMO GENERATED FROM A SCHOLARLY PAPER
+C     SELECTED PAPER: Permafrost conditions in peatlands govern riverine flushing of...
+C
+C     DATA DICTIONARY
+C     DAY    = DAY NUMBER, 1 TO 365
+C     RAIN   = DAILY RAINFALL DEPTH, MILLIMETRES
+C     RUNOF  = DAILY RUNOFF DEPTH, MILLIMETRES
+C     SOIL   = SIMPLE SOIL WATER STORE, MILLIMETRES
+C     ET     = POTENTIAL EVAPOTRANSPIRATION, MILLIMETRES
+C     WET    = 1 FOR WET DAY, 0 FOR DRY DAY
+C     W0     = BASE WET-DAY PROBABILITY
+C     PERS   = EXTRA WET-DAY PROBABILITY AFTER A WET DAY
+C     RMEAN  = MEAN RAINFALL INTENSITY FOR ORDINARY WET DAYS
+C     HPROB  = PROBABILITY THAT A WET DAY IS HEAVY
+C     HFAC   = HEAVY-EVENT RAINFALL MULTIPLIER
+C     RCOEF  = DIRECT RUNOFF COEFFICIENT
+C     CAP    = SOIL STORAGE CAPACITY
+C     INFIL  = INFILTRATING FRACTION OF RAINFALL
+C     TREND  = LINEAR INTENSITY TREND OVER ONE SYNTHETIC YEAR
+C
+      INTEGER NDAYS,DAY,ISEED,K,WET
+      DOUBLE PRECISION U,RAIN,RUNOF,SOIL,PWET,W0,PERS,RMEAN
+      DOUBLE PRECISION HPROB,HFAC,RCOEF,ETBAS,CAP,INFIL
+      DOUBLE PRECISION TREND,ET,TOTR,TOTQ,MAXR,MAXQ,PI,T,SEA
+      DOUBLE PRECISION MEANF,EXC
+      PARAMETER (NDAYS=365)
+      DATA W0/0.200000D0/
+      DATA PERS/0.350000D0/
+      DATA RMEAN/14.000000D0/
+      DATA HPROB/0.080000D0/
+      DATA HFAC/4.000000D0/
+      DATA RCOEF/0.340000D0/
+      DATA ETBAS/3.800000D0/
+      DATA CAP/75.000000D0/
+      DATA INFIL/0.700000D0/
+      DATA TREND/0.120000D0/
+      DATA PI/3.141592653589793D0/
+      ISEED = 1357911
+      SOIL = 0.50D0*CAP
+      WET = 0
+      TOTR = 0.0D0
+      TOTQ = 0.0D0
+      MAXR = 0.0D0
+      MAXQ = 0.0D0
+      OPEN(10,FILE='results.csv',STATUS='UNKNOWN')
+      WRITE(10,*) 'day,rain_mm,runoff_mm,soil_mm,et_mm,wet'
+      DO 100 DAY = 1, NDAYS
+         K = ISEED / 127773
+         ISEED = 16807*(ISEED-K*127773)-2836*K
+         IF (ISEED .LE. 0) ISEED = ISEED + 2147483647
+         U = DBLE(ISEED)*4.656612875D-10
+         PWET = W0 + PERS*DBLE(WET)
+         IF (PWET .GT. 0.95D0) PWET = 0.95D0
+         RAIN = 0.0D0
+         IF (U .LT. PWET) THEN
+            WET = 1
+            K = ISEED / 127773
+            ISEED = 16807*(ISEED-K*127773)-2836*K
+            IF (ISEED .LE. 0) ISEED = ISEED + 2147483647
+            U = DBLE(ISEED)*4.656612875D-10
+            IF (U .LT. 1.0D-12) U = 1.0D-12
+            T = DBLE(DAY-1)/DBLE(NDAYS)
+            SEA = 1.0D0 + 0.25D0*DSIN(2.0D0*PI*(T-0.20D0))
+            MEANF = RMEAN*SEA*(1.0D0+TREND*T)
+            RAIN = -MEANF*DLOG(U)
+            K = ISEED / 127773
+            ISEED = 16807*(ISEED-K*127773)-2836*K
+            IF (ISEED .LE. 0) ISEED = ISEED + 2147483647
+            U = DBLE(ISEED)*4.656612875D-10
+            IF (U .LT. HPROB) RAIN = RAIN*HFAC
+         ELSE
+            WET = 0
+         ENDIF
+         T = DBLE(DAY-1)/DBLE(NDAYS)
+         ET = ETBAS*(1.0D0+0.35D0*DSIN(2.0D0*PI*(T-0.05D0)))
+         RUNOF = RCOEF*RAIN
+         SOIL = SOIL + INFIL*RAIN - ET
+         IF (SOIL .GT. CAP) THEN
+            EXC = SOIL - CAP
+            RUNOF = RUNOF + EXC
+            SOIL = CAP
+         ENDIF
+         IF (SOIL .LT. 0.0D0) SOIL = 0.0D0
+         TOTR = TOTR + RAIN
+         TOTQ = TOTQ + RUNOF
+         IF (RAIN .GT. MAXR) MAXR = RAIN
+         IF (RUNOF .GT. MAXQ) MAXQ = RUNOF
+         WRITE(10,900) DAY,RAIN,RUNOF,SOIL,ET,WET
+  100 CONTINUE
+      CLOSE(10)
+      OPEN(11,FILE='summary.txt',STATUS='UNKNOWN')
+      WRITE(11,*) 'Synthetic rainfall/runoff demo summary'
+      WRITE(11,*) 'Total rainfall mm: ', TOTR
+      WRITE(11,*) 'Total runoff mm:   ', TOTQ
+      WRITE(11,*) 'Maximum rain mm:   ', MAXR
+      WRITE(11,*) 'Maximum runoff mm: ', MAXQ
+      CLOSE(11)
+      WRITE(*,*) 'Wrote results.csv and summary.txt'
+  900 FORMAT(I4,',',F10.3,',',F10.3,',',F10.3,',',F10.3,',',I1)
+      END

@@ -1,0 +1,111 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.2cm]{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{listings}
+\title{Fortran 77 Rainfall Simulation Demo from a Random Recent Paper}
+\author{Automated OpenAlex + Fortran 77 + LaTeX Pipeline}
+\date{2026-05-18}
+\begin{document}
+\maketitle
+
+\section*{Selected scholarly paper}
+\begin{description}
+\item[Title] Permafrost conditions in peatlands govern riverine flushing of dissolved organic carbon, methylmercury, and nutrients
+\item[Authors] Fares Mandour, Jazmin Greyeyes-Howell, Renae Shewan, Lauren Thompson, Irene Graham, Mike Low, et al.
+\item[Source] Unknown source
+\item[Publication date] 2026-05-12
+\item[DOI] https://doi.org/10.5194/egusphere-2026-2199
+\item[OpenAlex ID] \url{https://openalex.org/W7160897333}
+\item[Landing page] \url{https://doi.org/10.5194/egusphere-2026-2199}
+\item[Cited by count] 0
+\end{description}
+
+\section*{Abstract used by the script}
+Abstract. Permafrost thaw and intensified droughts and floods threaten to alter the mobilization of dissolved organic carbon (DOC), nutrients and methylmercury (MeHg) from boreal peatlands, with cascading impacts on aquatic ecosystem functions and traditional food sources. Here we monitored 27 peatland-dominated (\&gt;30 \%) catchments in western Canada (150 to 52,000 km2) over a five-year period (2020 – 2024) which captured extreme hydroclimatic conditions. These catchments spanned a climatic and permafrost gradient (mean annual temperature -0.2 to -2.8 °C), which provided a space-for-time framework to assess impacts of continued thaw and warming. Our results demonstrated that catchment climate, and thus permafrost conditions, strongly controlled the hydrological response of solute concentrations. Warmer catchments showed a pronounced flushing response where DOC and MeHg concentrations increased by 50 \% and 80 \%, respectively, as discharge increased from the 10th to 90th percentile. In contrast, colder catchments maintained a chemostatic response, where concentrations remained stable and low despite hydrological variability. Similar climate-hydrology interactions were found for total nitrogen, total phosphorous, and inorganic phosphorous, but not for inorganic nitrogen. It is likely that permafrost conditions in peatlands affect both the production of solutes and their hydrological connectivity to the stream network. The presence of permafrost in peatlands may act to both e...
+
+\section*{Modelling note}
+This report is an \emph{abstract-driven demonstration}, not a reproduction of the
+paper's full methods. The script uses the selected title and abstract to tune a
+small stochastic rainfall--runoff bucket model. It is suitable for software,
+Fortran 77, and reproducibility demonstrations, not for operational forecasting.
+
+\section*{Parameter choices inferred from paper language}
+\begin{itemize}
+\item extreme/heavy rainfall language raised storm rainfall mean
+\item extreme/heavy rainfall language raised heavy-event probability
+\item extreme/heavy rainfall language raised heavy-event multiplier
+\item flood language raised direct runoff coefficient
+\item flood language lowered effective soil storage
+\item dry/drought language lowered base wet-day probability
+\item dry/drought language raised evapotranspiration demand
+\item climate-change/projection language added a rainfall-intensity trend
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Parameter & Value \\
+\midrule
+w0 & 0.2000 \\
+pers & 0.3500 \\
+rmean & 14.0000 \\
+hprob & 0.0800 \\
+hfac & 4.0000 \\
+rcoef & 0.3400 \\
+etbas & 3.8000 \\
+cap & 75.0000 \\
+infil & 0.7000 \\
+trend & 0.1200 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Simulation summary}
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Days simulated & 365 \\
+Wet days & 149 \\
+Total rainfall, mm & 1925.50 \\
+Total runoff, mm & 870.62 \\
+Runoff/rainfall ratio & 0.452 \\
+Maximum daily rainfall, mm & 58.83 \\
+Maximum daily runoff, mm & 46.59 \\
+Mean daily rainfall, mm & 5.28 \\
+Mean daily runoff, mm & 2.39 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{First 10 simulated days}
+\begin{center}
+\begin{tabular}{rrrrrr}
+\toprule
+Day & Rain & Runoff & Soil & ET & Wet \\
+\midrule
+1 & 0.00 & 0.00 & 34.11 & 3.39 & 0 \\
+2 & 0.00 & 0.00 & 30.70 & 3.41 & 0 \\
+3 & 0.00 & 0.00 & 27.27 & 3.43 & 0 \\
+4 & 7.62 & 2.59 & 29.14 & 3.46 & 1 \\
+5 & 6.17 & 2.10 & 29.99 & 3.48 & 1 \\
+6 & 0.00 & 0.00 & 26.49 & 3.50 & 0 \\
+7 & 0.00 & 0.00 & 22.96 & 3.52 & 0 \\
+8 & 0.00 & 0.00 & 19.42 & 3.54 & 0 \\
+9 & 0.00 & 0.00 & 15.85 & 3.57 & 0 \\
+10 & 0.00 & 0.00 & 12.27 & 3.59 & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Generated Fortran 77 source}
+The generated source file is \texttt{rainfall\_demo.f}. The daily output is
+\texttt{results.csv}, and the plain-text summary is \texttt{summary.txt}.
+
+\lstinputlisting[language=Fortran,basicstyle=\ttfamily\scriptsize,
+breaklines=true]{rainfall_demo.f}
+
+\end{document}

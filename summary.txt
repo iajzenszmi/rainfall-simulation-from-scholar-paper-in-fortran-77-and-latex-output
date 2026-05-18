@@ -1,0 +1,5 @@
+ Synthetic rainfall/runoff demo summary
+ Total rainfall mm:    1925.4990578941402     
+ Total runoff mm:      870.62878814948147     
+ Maximum rain mm:      58.829794957462532     
+ Maximum runoff mm:    46.585673576327231     
